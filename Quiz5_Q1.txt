@@ -35,8 +35,8 @@ object Q1 {
    val extra = system.actorOf(Props(classOf[QuizActor], second))
 
 
-   extra ! Beach(6)
-   second ! Beach(9)
+   thrid ! Beach(6)
+   extra ! Beach(9)
  }
 }
 
