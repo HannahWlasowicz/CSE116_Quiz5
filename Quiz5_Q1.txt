@@ -1,0 +1,43 @@
+Q1 (30 points): Study the following code to answer the question below
+
+case class Beach(sand: Int)
+
+class QuizActor(next: ActorRef) extends Actor {
+ def receive: Receive = {
+   case cape: Beach=>
+     if (cape.sand %2 == 0) {
+       next ! Beach(cape.sand-2)
+     } else {
+       next ! Beach(7)
+     }
+ }
+}
+
+class QuizActor2() extends Actor {
+ def receive: Receive = {
+   case cape: Beach=>
+     println(cape.sand)
+ }
+}
+
+
+object Q1 {
+
+ def main(args: Array[String]): Unit = {
+   val system = ActorSystem("QuizSystem")
+
+   val mainActor = system.actorOf(Props(classOf[QuizActor2]))
+
+   val first = system.actorOf(Props(classOf[QuizActor], mainActor))
+   val second = system.actorOf(Props(classOf[QuizActor], first))
+   val third = system.actorOf(Props(classOf[QuizActor], second))
+
+   val extra = system.actorOf(Props(classOf[QuizActor], second))
+
+
+   extra ! Beach(6)
+   second ! Beach(9)
+ }
+}
+
+What two values are printed when this program runs?

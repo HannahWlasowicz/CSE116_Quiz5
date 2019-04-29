@@ -1,0 +1,68 @@
+Q2 (30 points): Study the following code to answer the question below. You may assume all necessary imports are included.
+
+This TCP Socket Server is running
+class TCPServer() extends Actor {
+
+ import Tcp._
+ import context.system
+
+ IO(Tcp) ! Bind(self, new InetSocketAddress("localhost", 8000))
+
+ var buffer: String = ""
+ val delimiter: String = "~"
+
+ override def receive: Receive = {
+   case b: Bound => println("Listening on port: " + b.localAddress.getPort)
+   case c: Connected =>
+     sender() ! Register(self)
+     sender() ! Write(ByteString("Spoilers!" + delimiter))
+   case r: Received =>
+     buffer += r.data.utf8String
+     while (buffer.contains(delimiter)) {
+       val message = buffer.substring(0, buffer.indexOf(delimiter))
+       buffer = buffer.substring(buffer.indexOf(delimiter) + 1)
+       sender() ! Write(ByteString("ENDING" + delimiter))
+     }
+ }
+}
+
+object Q2 {
+ def main(args: Array[String]): Unit = {
+   val actorSystem = ActorSystem()
+   actorSystem.actorOf(Props(classOf[TCPServer]))
+ }
+}
+
+Then this TCP Socket Client is ran
+scala_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+scala_socket.connect(('localhost', 8000))
+
+delimiter = "~"
+number = [0]
+
+
+def listen_to_scala(the_socket):
+   buffer = ""
+   while True:
+       buffer += the_socket.recv(1024).decode()
+       while delimiter in buffer:
+           message = buffer[:buffer.find(delimiter)]
+           buffer = buffer[buffer.find(delimiter) + 1:]
+           get_from_scala(message)
+
+
+def get_from_scala(message):
+   if "Spoilers" in message:
+       send_to_scala("Spoilers Ahead!")
+   number[0] += len(message)%3
+   print(number[0])
+
+
+def send_to_scala(data):
+   scala_socket.sendall((json.dumps(data) + delimiter).encode())
+
+
+send_to_scala("Spoilers Students!")
+listen_to_scala(scala_socket)
+
+What is the final value of number[0]?
